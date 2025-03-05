@@ -11,6 +11,111 @@ function Api.completions(custom_params, cb)
   Api.make_call(Api.COMPLETIONS_URL, params, cb)
 end
 
+function print_table(tbl, indent)
+  indent = indent or 0 -- インデントの初期値
+  if type(tbl) ~= "table" then
+    return
+  end
+
+  for k, v in pairs(tbl) do
+    local key_str = tostring(k)
+    local value_type = type(v)
+
+    if value_type == "table" then
+      print(string.rep("  ", indent) .. key_str .. " = {")
+      print_table(v, indent + 1)
+      print(string.rep("  ", indent) .. "}")
+    else
+      print(string.rep("  ", indent) .. key_str .. " = " .. tostring(v))
+    end
+  end
+end
+
+function Api.chat_completions(custom_params, cb, should_stop)
+  local params = custom_params
+  local stream = params.stream or false
+  if stream then
+    local raw_chunks = ""
+    local state = "START"
+
+    cb = vim.schedule_wrap(cb)
+    local modelid = "amazon.titan-text-lite-v1"
+    local URL = string.format("https://bedrock-runtime.us-west-2.amazonaws.com/model/%s/invoke", modelid)
+    local AWS_ACCESS_KEY_ID = "XXXXXXXXXXXXXXX"
+    local AWS_SECRET_ACCESS_KEY = "XXXXXXXXXXXXXXX"
+    local USER_ID = AWS_ACCESS_KEY_ID .. ":" .. AWS_SECRET_ACCESS_KEY
+
+    local bedrock_params = {
+      inputText = "User: hello\nBot:",
+      textGenerationConfig = {
+        temperature = 0,
+        topP = 1,
+        maxTokenCount = 4096,
+        stopSequences = {},
+      },
+    }
+
+    local args = {
+      "-v",
+      "--show-error",
+      "--no-buffer",
+      "--aws-sigv4",
+      "aws:amz:us-west-2:bedrock",
+      "--user",
+      USER_ID,
+      URL,
+      "-H",
+      "Content-Type: application/json",
+      "-X",
+      "POST",
+      "-d",
+      vim.json.encode(bedrock_params),
+    }
+
+    Api.exec(
+      "curl",
+      args,
+      function(chunk)
+        local ok, json = pcall(vim.json.decode, chunk)
+        if ok and json ~= nil then
+          if json.error ~= nil then
+            cb(json.error.message, "ERROR")
+            return
+          end
+        end
+        for line in chunk:gmatch("[^\n]+") do
+          local raw_json = string.gsub(line, "^data: ", "")
+          if raw_json == "[DONE]" then
+            cb(raw_chunks, "END")
+          else
+            ok, json = pcall(vim.json.decode, raw_json, {
+              luanil = {
+                object = true,
+                array = true,
+              },
+            })
+            if ok and json ~= nil then
+              print("state ", state)
+              cb(json.results[1].outputText, state)
+              --raw_chunks = raw_chunks .. json.choices[1].delta.content
+            end
+          end
+        end
+      end,
+      function(err, _)
+        cb(err, "ERROR")
+      end,
+      should_stop,
+      function()
+        cb(raw_chunks, "END")
+      end
+    )
+  else
+    Api.make_call(Api.CHAT_COMPLETIONS_URL, params, cb)
+  end
+end
+
+--[[
 function Api.chat_completions(custom_params, cb, should_stop)
   local openai_params = Utils.collapsed_openai_params(Config.options.openai_params)
   local params = vim.tbl_extend("keep", custom_params, openai_params)
@@ -96,6 +201,7 @@ function Api.chat_completions(custom_params, cb, should_stop)
     Api.make_call(Api.CHAT_COMPLETIONS_URL, params, cb)
   end
 end
+]]
 
 function Api.edits(custom_params, cb)
   local openai_params = Utils.collapsed_openai_params(Config.options.openai_params)

@@ -1,0 +1,18 @@
+実際に API を実行している箇所は lua/api.lua　の chat_completions
+chatgpt/flows/chat/base.lua から呼び出している
+curl で API を実行している
+
+引数の params はその名の通りたくさんのパラメータが入ってる
+cb はメッセージを出力する関数
+should_stop は途中で止めるとかどうか
+
+さらに api.lua の API.exec でvim.loop.spawn でターミナルコマンドを非同期に実行
+
+https://neovim.io/doc/user/luvref.html#uv.spawn()
+
+そして、read_start を使用してデータを読み取る
+
+https://neovim.io/doc/user/luvref.html#uv.spawn()
+
+読み取ったデータは json で返るので整形して cb で出力
+

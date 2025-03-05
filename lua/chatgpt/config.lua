@@ -131,7 +131,7 @@ function M.defaults()
       prompt = "  ",
       border = {
         highlight = "FloatBorder",
-        style = "rounded",
+        style = "double",
         text = {
           top_align = "center",
           top = " Prompt ",
@@ -140,7 +140,7 @@ function M.defaults()
       win_options = {
         winhighlight = "Normal:Normal,FloatBorder:FloatBorder",
       },
-      submit = "<C-Enter>",
+      submit = { "<CR>" },
       submit_n = "<Enter>",
       max_visible_lines = 20,
     },

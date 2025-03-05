@@ -162,6 +162,7 @@ function Chat:set_session(session)
 end
 
 function Chat:isBusy()
+  print(self.spinner:is_running() or self.is_streaming_response)
   return self.spinner:is_running() or self.is_streaming_response
 end
 
@@ -269,7 +270,7 @@ function Chat:addAnswerPartial(text, state)
   end
 
   if state == "START" then
-    self.is_streaming_response = true
+    --self.is_streaming_response = true
 
     self:stopSpinner()
     self:set_lines(-2, -1, false, { "" })
