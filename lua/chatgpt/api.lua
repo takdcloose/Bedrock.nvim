@@ -96,6 +96,7 @@ function Api.chat_completions(custom_params, cb, should_stop)
             })
             if ok and json ~= nil then
               print("state ", state)
+              state = "END"
               cb(json.results[1].outputText, state)
               --raw_chunks = raw_chunks .. json.choices[1].delta.content
             end
