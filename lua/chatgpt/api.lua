@@ -45,8 +45,10 @@ function Api.chat_completions(custom_params, cb, should_stop)
     local AWS_SECRET_ACCESS_KEY = "XXXXXXXXXXXXXXX"
     local USER_ID = AWS_ACCESS_KEY_ID .. ":" .. AWS_SECRET_ACCESS_KEY
 
+    local last_content = params.messages[#params.messages].content or nil
+    print(last_content)
     local bedrock_params = {
-      inputText = "User: hello\nBot:",
+      inputText = last_content,
       textGenerationConfig = {
         temperature = 0,
         topP = 1,

@@ -293,7 +293,6 @@ function Chat:addAnswerPartial(text, state)
     end
 
     for i, line in ipairs(lines) do
-      print("line", line)
       local currentLine = vim.api.nvim_buf_get_lines(buffer, -2, -1, false)[1]
       Utils.modify_buf(self.chat_window.bufnr, function(bufnr)
         vim.api.nvim_buf_set_lines(bufnr, -2, -1, false, { currentLine .. line })
