@@ -40,17 +40,23 @@ function Api.chat_completions(custom_params, cb, should_stop)
 
     cb = vim.schedule_wrap(cb)
     local modelid = "amazon.titan-text-lite-v1"
-    local URL = string.format("https://bedrock-runtime.us-west-2.amazonaws.com/model/%s/invoke", modelid)
+    local URL = string.format("https://bedrock-runtime.us-west-2.amazonaws.com/model/%s/converse", modelid)
     local AWS_ACCESS_KEY_ID = "XXXXXXXXXXXXXXX"
     local AWS_SECRET_ACCESS_KEY = "XXXXXXXXXXXXXXX"
     local USER_ID = AWS_ACCESS_KEY_ID .. ":" .. AWS_SECRET_ACCESS_KEY
 
     local last_content = params.messages[#params.messages].content or nil
-    print(last_content)
     local bedrock_params = {
-      inputText = last_content,
-      textGenerationConfig = {
-        temperature = 0,
+      messages = {
+        {
+          role = "user",
+          content = {
+            { text = last_content },
+          },
+        },
+      },
+      inferenceConfig = {
+        temperature = 0.5,
         topP = 1,
         maxTokenCount = 4096,
         stopSequences = {},
@@ -87,6 +93,7 @@ function Api.chat_completions(custom_params, cb, should_stop)
         end
         for line in chunk:gmatch("[^\n]+") do
           local raw_json = string.gsub(line, "^data: ", "")
+          print(line)
           if raw_json == "[DONE]" then
             cb(raw_chunks, "END")
           else
@@ -97,9 +104,8 @@ function Api.chat_completions(custom_params, cb, should_stop)
               },
             })
             if ok and json ~= nil then
-              print("state ", state)
               state = "END"
-              cb(json.results[1].outputText, state)
+              cb(json.output.message.content[1].text, state)
               --raw_chunks = raw_chunks .. json.choices[1].delta.content
             end
           end

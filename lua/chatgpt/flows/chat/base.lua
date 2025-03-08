@@ -162,7 +162,6 @@ function Chat:set_session(session)
 end
 
 function Chat:isBusy()
-  print(self.spinner:is_running() or self.is_streaming_response)
   return self.spinner:is_running() or self.is_streaming_response
 end
 
