@@ -1,5 +1,5 @@
 WELCOME_MESSAGE = [[
- 
+
      If you don't ask the right questions,
         you don't get the right answers.
                                       ~ Robert Half
@@ -177,13 +177,11 @@ function M.defaults()
       top_p = 1,
       n = 1,
     },
-    openai_edit_params = {
-      model = "gpt-3.5-turbo",
-      frequency_penalty = 0,
-      presence_penalty = 0,
-      temperature = 0,
-      top_p = 1,
-      n = 1,
+    bedrock_edit_params = {
+      inferenceConfig = {
+        maxTokens = 1000,
+        temperature = 0.5,
+      },
     },
     use_openai_functions_for_edits = false,
     ignore_default_actions_path = false,

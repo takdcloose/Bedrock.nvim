@@ -57,6 +57,7 @@ function M.run_action(opts)
   local action_name = opts.fargs[1]
   local item = ACTIONS[action_name]
 
+  print_table(item)
   if item == nil then
     if action_name == nil then
       vim.notify("You need to specify an action", vim.log.levels.WARN)
@@ -78,6 +79,7 @@ function M.run_action(opts)
 
   -- parse args
   --
+  print_table(item.args)
   if item.args then
     item.opts.variables = {}
     local i = 2

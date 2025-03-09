@@ -37,28 +37,19 @@ EDIT_FUNCTION_ARGUMENTS = {
   },
 }
 
--- https://openai.com/blog/gpt-4-api-general-availability
-local build_edit_messages = function(input, instructions, use_functions_for_edits)
-  local system_message_content
-  if use_functions_for_edits then
-    system_message_content =
-      "Apply the changes requested by the user to the code. Output ONLY the changed code and a brief description of the edits. DO NOT wrap the code in a formatting block. DO NOT provide other text or explanation."
-  else
-    system_message_content =
-      "Apply the changes requested by the user to the code. Output ONLY the changed code. DO NOT wrap the code in a formatting block. DO NOT provide other text or explanation."
-  end
+local build_edit_messages = function(input, instructions)
   local messages = {
     {
-      role = "system",
-      content = system_message_content,
+      role = "user",
+      content = {
+        { text = input },
+      },
     },
     {
       role = "user",
-      content = input,
-    },
-    {
-      role = "user",
-      content = instructions,
+      content = {
+        { text = instructions },
+      },
     },
   }
   return messages
@@ -149,9 +140,9 @@ M.edit_with_instructions = function(output_lines, bufnr, selection, ...)
   else
     visual_lines, start_row, start_col, end_row, end_col = unpack(selection)
   end
-  local openai_params = Config.options.openai_edit_params
+  local bedrock_params = Config.options.bedrock_edit_params
   local use_functions_for_edits = Config.options.use_openai_functions_for_edits
-  local settings_panel = Settings.get_settings_panel("edits", openai_params)
+  local settings_panel = Settings.get_settings_panel("edits", bedrock_params)
   local help_panel = Help.get_help_panel("edit") -- I like the highlighting for Lua.
   local open_extra_panels = {} -- tracks which extra panels are open
   local active_panel = instructions_input -- for cycling windows
@@ -170,31 +161,17 @@ M.edit_with_instructions = function(output_lines, bufnr, selection, ...)
       show_progress()
 
       local input = table.concat(vim.api.nvim_buf_get_lines(input_window.bufnr, 0, -1, false), "\n")
-      local messages = build_edit_messages(input, instruction, use_functions_for_edits)
-      local function_params = use_functions_for_edits and EDIT_FUNCTION_ARGUMENTS or {}
-      local params = vim.tbl_extend("keep", { messages = messages }, Settings.params, function_params)
+      local messages = build_edit_messages(input, instruction)
+      --local function_params = use_functions_for_edits and EDIT_FUNCTION_ARGUMENTS or {}
+      print("settings")
+      print_table(Settings.params)
+      local params = vim.tbl_extend("keep", { messages = messages }, Settings.params)
       Api.edits(params, function(response, usage)
         hide_progress()
         local nlcount = Utils.count_newlines_at_end(input)
         local output_txt = response
-        if use_functions_for_edits then
-          output_txt = Utils.match_indentation(input, response.changed_code)
-
-          if response.applied_changes then
-            local applied_changes = response.applied_changes
-
-            -- ChatGPT 4 returns a table of changes, but ChatGPT 3 returns a string.
-            -- For ChatGPT 4, format the changes as a bullet list.
-            if type(applied_changes) == "table" then
-              for i, change in ipairs(applied_changes) do
-                applied_changes[i] = " - " .. change
-              end
-              applied_changes = table.concat(applied_changes, "\n")
-            end
-
-            vim.notify(applied_changes, vim.log.levels.INFO)
-          end
-        end
+        print("output_txt")
+        print(output_txt)
         local output_txt_nlfixed = Utils.replace_newlines_at_end(output_txt, nlcount)
         output = Utils.split_string_by_line(output_txt_nlfixed)
 

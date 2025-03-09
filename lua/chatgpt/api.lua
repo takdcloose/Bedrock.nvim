@@ -91,7 +91,6 @@ function Api.chat_completions(custom_params, cb, should_stop)
         end
         for line in chunk:gmatch("[^\n]+") do
           local raw_json = string.gsub(line, "^data: ", "")
-          print(line)
           if raw_json == "[DONE]" then
             cb(raw_chunks, "END")
           else
@@ -211,15 +210,11 @@ end
 ]]
 
 function Api.edits(custom_params, cb)
-  local openai_params = Utils.collapsed_openai_params(Config.options.openai_params)
-  local params = vim.tbl_extend("keep", custom_params, openai_params)
-  if params.model == "text-davinci-edit-001" or params.model == "code-davinci-edit-001" then
-    vim.notify("Edit models are deprecated", vim.log.levels.WARN)
-    Api.make_call(Api.EDITS_URL, params, cb)
-    return
-  end
-
-  Api.make_call(Api.CHAT_COMPLETIONS_URL, params, cb)
+  local params = custom_params
+  local modelid = "anthropic.claude-v2"
+  local URL = string.format("https://bedrock-runtime.us-west-2.amazonaws.com/model/%s/converse", modelid)
+  local USER_ID = Api.AWS_ACCESS_KEY_ID .. ":" .. Api.AWS_SECRET_ACCESS_KEY
+  Api.make_call(URL, params, cb)
 end
 
 function Api.make_call(url, params, cb)
@@ -231,13 +226,21 @@ function Api.make_call(url, params, cb)
   end
   f:write(vim.fn.json_encode(params))
   f:close()
+  print("params", vim.fn.json_encode(params))
 
+  local USER_ID = Api.AWS_ACCESS_KEY_ID .. ":" .. Api.AWS_SECRET_ACCESS_KEY
   local args = {
     url,
+    "--show-error",
+    "--no-buffer",
+    "--aws-sigv4",
+    "aws:amz:us-west-2:bedrock",
+    "--user",
+    USER_ID,
     "-H",
     "Content-Type: application/json",
-    "-H",
-    Api.AUTHORIZATION_HEADER,
+    "-X",
+    "POST",
     "-d",
     "@" .. TMP_MSG_FILENAME,
   }
@@ -267,6 +270,11 @@ Api.handle_response = vim.schedule_wrap(function(response, exit_code, cb)
     cb("ERROR: API Error")
   end
 
+  print("result")
+  print_table(response)
+  if response == nil then
+    cb("No Response")
+  end
   local result = table.concat(response:result(), "\n")
   local json = vim.fn.json_decode(result)
   if json == nil then
@@ -274,27 +282,18 @@ Api.handle_response = vim.schedule_wrap(function(response, exit_code, cb)
   elseif json.error then
     cb("// API ERROR: " .. json.error.message)
   else
-    local message = json.choices[1].message
+    local message = json.output.message.content[1]
+    print("message")
+    print_table(message)
     if message ~= nil then
-      local message_response
-      local first_message = json.choices[1].message
-      if first_message.function_call then
-        message_response = vim.fn.json_decode(first_message.function_call.arguments)
-      else
-        message_response = first_message.content
-      end
+      local message_response = message.text
       if (type(message_response) == "string" and message_response ~= "") or type(message_response) == "table" then
         cb(message_response, json.usage)
       else
         cb("...")
       end
     else
-      local response_text = json.choices[1].text
-      if type(response_text) == "string" and response_text ~= "" then
-        cb(response_text, json.usage)
-      else
-        cb("...")
-      end
+      logger.warn("no message")
     end
   end
 end)
@@ -303,36 +302,6 @@ function Api.close()
   if Api.job then
     job:shutdown()
   end
-end
-
-local splitCommandIntoTable = function(command)
-  local cmd = {}
-  for word in command:gmatch("%S+") do
-    table.insert(cmd, word)
-  end
-  return cmd
-end
-
-local function loadConfigFromCommand(command, optionName, callback, defaultValue)
-  local cmd = splitCommandIntoTable(command)
-  job
-    :new({
-      command = cmd[1],
-      args = vim.list_slice(cmd, 2, #cmd),
-      on_exit = function(j, exit_code)
-        if exit_code ~= 0 then
-          logger.warn("Config '" .. optionName .. "' did not return a value when executed")
-          return
-        end
-        local value = j:result()[1]:gsub("%s+$", "")
-        if value ~= nil and value ~= "" then
-          callback(value)
-        elseif defaultValue ~= nil and defaultValue ~= "" then
-          callback(defaultValue)
-        end
-      end,
-    })
-    :start()
 end
 
 local function loadConfigFromEnv(envName, configName, callback)
@@ -344,17 +313,6 @@ local function loadConfigFromEnv(envName, configName, callback)
   Api[configName] = value
   if callback then
     callback(value)
-  end
-end
-
-local function loadOptionalConfig(envName, configName, optionName, callback, defaultValue)
-  loadConfigFromEnv(envName, configName)
-  if Api[configName] then
-    callback(Api[configName])
-  elseif Config.options[optionName] ~= nil and Config.options[optionName] ~= "" then
-    loadConfigFromCommand(Config.options[optionName], optionName, callback, defaultValue)
-  else
-    callback(defaultValue)
   end
 end
 
