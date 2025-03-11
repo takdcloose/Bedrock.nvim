@@ -34,15 +34,14 @@ end
 function Api.chat_completions(custom_params, cb, should_stop)
   local params = custom_params
   local stream = params.stream or false
+  local modelid = "anthropic.claude-v2"
+  local URL = string.format("https://bedrock-runtime.us-west-2.amazonaws.com/model/%s/converse", modelid)
+  local USER_ID = Api.AWS_ACCESS_KEY_ID .. ":" .. Api.AWS_SECRET_ACCESS_KEY
   if stream then
     local raw_chunks = ""
     local state = "START"
 
     cb = vim.schedule_wrap(cb)
-    local modelid = "amazon.titan-text-lite-v1"
-    local URL = string.format("https://bedrock-runtime.us-west-2.amazonaws.com/model/%s/converse", modelid)
-    local USER_ID = Api.AWS_ACCESS_KEY_ID .. ":" .. Api.AWS_SECRET_ACCESS_KEY
-
     local last_content = params.messages[#params.messages].content or nil
     local bedrock_params = {
       messages = {
@@ -117,7 +116,7 @@ function Api.chat_completions(custom_params, cb, should_stop)
       end
     )
   else
-    Api.make_call(Api.CHAT_COMPLETIONS_URL, params, cb)
+    Api.make_call(URL, params, cb)
   end
 end
 
@@ -226,7 +225,6 @@ function Api.make_call(url, params, cb)
   end
   f:write(vim.fn.json_encode(params))
   f:close()
-  print("params", vim.fn.json_encode(params))
 
   local USER_ID = Api.AWS_ACCESS_KEY_ID .. ":" .. Api.AWS_SECRET_ACCESS_KEY
   local args = {
@@ -270,8 +268,6 @@ Api.handle_response = vim.schedule_wrap(function(response, exit_code, cb)
     cb("ERROR: API Error")
   end
 
-  print("result")
-  print_table(response)
   if response == nil then
     cb("No Response")
   end
@@ -283,8 +279,6 @@ Api.handle_response = vim.schedule_wrap(function(response, exit_code, cb)
     cb("// API ERROR: " .. json.error.message)
   else
     local message = json.output.message.content[1]
-    print("message")
-    print_table(message)
     if message ~= nil then
       local message_response = message.text
       if (type(message_response) == "string" and message_response ~= "") or type(message_response) == "table" then

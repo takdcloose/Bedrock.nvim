@@ -51,7 +51,7 @@ function Chat:init()
   self.prompt_lines = 1
 
   self.display_mode = Config.options.popup_layout.default
-  self.params = Config.options.openai_params
+  self.params = Config.options.bedrock_params
 
   self.session = Session.latest()
   self.selectedIndex = 0

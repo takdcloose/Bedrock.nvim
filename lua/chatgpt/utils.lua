@@ -99,13 +99,9 @@ function M.get_visual_lines(bufnr)
   local end_row, end_col = unpack(vim.api.nvim_buf_get_mark(bufnr, ">"))
   local lines = vim.api.nvim_buf_get_lines(bufnr, start_row - 1, end_row, false)
 
-  -- get whole buffer if there is no current/previous visual selection
+  -- return if there is no current/previous visual selection
   if start_row == 0 then
-    lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-    start_row = 1
-    start_col = 0
-    end_row = #lines
-    end_col = #lines[#lines]
+    return {}, start_row, start_col, end_row, end_col
   end
 
   -- use 1-based indexing and handle selections made in visual line mode (see :help getpos)

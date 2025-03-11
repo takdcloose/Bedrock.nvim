@@ -163,15 +163,11 @@ M.edit_with_instructions = function(output_lines, bufnr, selection, ...)
       local input = table.concat(vim.api.nvim_buf_get_lines(input_window.bufnr, 0, -1, false), "\n")
       local messages = build_edit_messages(input, instruction)
       --local function_params = use_functions_for_edits and EDIT_FUNCTION_ARGUMENTS or {}
-      print("settings")
-      print_table(Settings.params)
       local params = vim.tbl_extend("keep", { messages = messages }, Settings.params)
       Api.edits(params, function(response, usage)
         hide_progress()
         local nlcount = Utils.count_newlines_at_end(input)
         local output_txt = response
-        print("output_txt")
-        print(output_txt)
         local output_txt_nlfixed = Utils.replace_newlines_at_end(output_txt, nlcount)
         output = Utils.split_string_by_line(output_txt_nlfixed)
 

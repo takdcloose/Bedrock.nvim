@@ -42,6 +42,7 @@ end
 function ChatAction:render_template()
   local input = self.strategy == STRATEGY_QUICK_FIX and self:get_selected_text_with_line_numbers()
     or self:get_selected_text()
+
   local data = {
     filetype = self:get_filetype(),
     filepath = self:get_filepath(),
@@ -59,10 +60,14 @@ function ChatAction:get_params()
   local messages = self.params.messages or {}
   local message = {
     role = "user",
-    content = self:render_template(),
+    content = {
+      {
+        text = self:render_template(),
+      },
+    },
   }
   table.insert(messages, message)
-  return vim.tbl_extend("force", Config.options.bedrock_params, self.params, { messages = messages })
+  return vim.tbl_extend("force", Config.options.bedrock_params, { messages = messages })
 end
 
 function ChatAction:run()

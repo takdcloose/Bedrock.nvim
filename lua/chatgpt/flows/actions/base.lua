@@ -35,7 +35,7 @@ end
 function BaseAction:get_filepath()
   local bufnr = self:get_bufnr()
   local full_path = vim.api.nvim_buf_get_name(bufnr)
-  -- Get relative path
+  -- ERROR: API Error
   local cwd = vim.fn.getcwd()
   local rel_path = vim.fn.fnamemodify(full_path, ":~:.")
 
@@ -48,7 +48,6 @@ end
 
 function BaseAction:get_visual_selection()
   -- return lines and selection, but caches them, so they always are the ones used
-  -- when the action was started, even if the user has changed buffer/selection
   if self._selection then
     return unpack(self._selection)
   end
