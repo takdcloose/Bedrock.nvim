@@ -525,26 +525,23 @@ end
 
 function Chat:toMessages()
   local messages = {}
+  --[[
   if self.system_message ~= nil then
+    print("system")
+    print(self.system_message)
     table.insert(messages, { role = "system", content = self.system_message })
   end
-
+]]
   for _, msg in pairs(self.messages) do
     local role = "user"
-    if msg.type == SYSTEM then
-      role = "system"
-    elseif msg.type == ANSWER then
+    if msg.type == 1 then
+      role = "user"
+    elseif msg.type == 2 then
       role = "assistant"
     end
     local content = {}
-    if Utils.collapsed_openai_params(self.params).model == "gpt-4-vision-preview" then
-      for _, line in ipairs(msg.lines) do
-        table.insert(content, createContent(line))
-      end
-    else
-      content = msg.text
-    end
-    table.insert(messages, { role = role, content = content })
+    content = msg.text
+    table.insert(messages, { role = role, content = { { text = content } } })
   end
   return messages
 end

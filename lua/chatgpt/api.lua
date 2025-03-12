@@ -5,12 +5,6 @@ local Utils = require("chatgpt.utils")
 
 local Api = {}
 
-function Api.completions(custom_params, cb)
-  local openai_params = Utils.collapsed_openai_params(Config.options.openai_params)
-  local params = vim.tbl_extend("keep", custom_params, openai_params)
-  Api.make_call(Api.COMPLETIONS_URL, params, cb)
-end
-
 function print_table(tbl, indent)
   indent = indent or 0 -- インデントの初期値
   if type(tbl) ~= "table" then
@@ -43,22 +37,14 @@ function Api.chat_completions(custom_params, cb, should_stop)
 
     cb = vim.schedule_wrap(cb)
     local last_content = params.messages[#params.messages].content or nil
-    local bedrock_params = {
-      messages = {
-        {
-          role = "user",
-          content = {
-            { text = last_content },
-          },
-        },
-      },
-      inferenceConfig = {
-        temperature = 0.5,
-        topP = 1,
-        maxTokenCount = 4096,
-        stopSequences = {},
-      },
+    local inferenceConfig = {
+      temperature = 0.5,
+      topP = 1,
+      maxTokenCount = 4096,
+      stopSequences = {},
     }
+    local bedrock_params = vim.tbl_extend("keep", params, inferenceConfig)
+    print_table(bedrock_params)
 
     local args = {
       "-v",
@@ -90,20 +76,16 @@ function Api.chat_completions(custom_params, cb, should_stop)
         end
         for line in chunk:gmatch("[^\n]+") do
           local raw_json = string.gsub(line, "^data: ", "")
-          if raw_json == "[DONE]" then
-            cb(raw_chunks, "END")
-          else
-            ok, json = pcall(vim.json.decode, raw_json, {
-              luanil = {
-                object = true,
-                array = true,
-              },
-            })
-            if ok and json ~= nil then
-              state = "END"
-              cb(json.output.message.content[1].text, state)
-              --raw_chunks = raw_chunks .. json.choices[1].delta.content
-            end
+          ok, json = pcall(vim.json.decode, raw_json, {
+            luanil = {
+              object = true,
+              array = true,
+            },
+          })
+          if ok and json ~= nil then
+            state = "END"
+            cb(json.output.message.content[1].text, state)
+            --raw_chunks = raw_chunks .. json.choices[1].delta.content
           end
         end
       end,
