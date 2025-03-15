@@ -5,8 +5,8 @@ local action_state = require("telescope.actions.state")
 local previewers = require("telescope.previewers")
 local job = require("plenary.job")
 
-local Utils = require("chatgpt.utils")
-local Config = require("chatgpt.config")
+local Utils = require("bedrock.utils")
+local Config = require("bedrock.config")
 
 local function defaulter(f, default_opts)
   default_opts = default_opts or {}
@@ -132,7 +132,7 @@ function M.selectAwesomePrompt(opts)
       layout_config = {
         height = 0.5,
       },
-      results_title = "ChatGPT Acts As ...",
+      results_title = "Bedrock Acts As ...",
       prompt_prefix = Config.options.popup_input.prompt,
       selection_caret = Config.options.chat.answer_sign .. " ",
       prompt_title = "Prompt",

@@ -2,9 +2,9 @@ local M = {}
 M.vts = {}
 
 local Popup = require("nui.popup")
-local Config = require("chatgpt.config")
+local Config = require("bedrock.config")
 
-local namespace_id = vim.api.nvim_create_namespace("ChatGPTNS")
+local namespace_id = vim.api.nvim_create_namespace("BedrockNS")
 
 local float_validator = function(min, max)
   return function(value)
@@ -43,7 +43,7 @@ end
 
 M.read_config = function()
   local home = os.getenv("HOME") or os.getenv("USERPROFILE")
-  local file = io.open(home .. "/" .. ".chatgpt-" .. M.type .. "-params.json", "rb")
+  local file = io.open(home .. "/" .. ".bedrock-" .. M.type .. "-params.json", "rb")
   if not file then
     return nil
   end
@@ -56,7 +56,7 @@ end
 
 M.write_config = function(config)
   local home = os.getenv("HOME") or os.getenv("USERPROFILE")
-  local file, err = io.open(home .. "/" .. ".chatgpt-" .. M.type .. "-params.json", "w")
+  local file, err = io.open(home .. "/" .. ".bedrock-" .. M.type .. "-params.json", "w")
   if file ~= nil then
     local json_string = vim.json.encode(config)
     file:write(json_string)

@@ -3,13 +3,13 @@ local M = {}
 local Layout = require("nui.layout")
 local Popup = require("nui.popup")
 
-local ChatInput = require("chatgpt.input")
-local Api = require("chatgpt.api")
-local Config = require("chatgpt.config")
-local Utils = require("chatgpt.utils")
-local Spinner = require("chatgpt.spinner")
-local Settings = require("chatgpt.settings")
-local Help = require("chatgpt.help")
+local ChatInput = require("bedrock.input")
+local Api = require("bedrock.api")
+local Config = require("bedrock.config")
+local Utils = require("bedrock.utils")
+local Spinner = require("bedrock.spinner")
+local Settings = require("bedrock.settings")
+local Help = require("bedrock.help")
 
 EDIT_FUNCTION_ARGUMENTS = {
   function_call = {
@@ -55,7 +55,7 @@ local build_edit_messages = function(input, instructions)
   return messages
 end
 
-local namespace_id = vim.api.nvim_create_namespace("ChatGPTNS")
+local namespace_id = vim.api.nvim_create_namespace("BedrockNS")
 
 local instructions_input, layout, input_window, output_window, output, timer, filetype, bufnr, extmark_id
 
@@ -70,9 +70,9 @@ local display_input_suffix = function(suffix)
 
   extmark_id = vim.api.nvim_buf_set_extmark(instructions_input.bufnr, namespace_id, 0, -1, {
     virt_text = {
-      { Config.options.chat.border_left_sign, "ChatGPTTotalTokensBorder" },
-      { "" .. suffix, "ChatGPTTotalTokens" },
-      { Config.options.chat.border_right_sign, "ChatGPTTotalTokensBorder" },
+      { Config.options.chat.border_left_sign, "BedrockTotalTokensBorder" },
+      { "" .. suffix, "BedrockTotalTokens" },
+      { Config.options.chat.border_right_sign, "BedrockTotalTokensBorder" },
       { " ", "" },
     },
     virt_text_pos = "right_align",
@@ -141,7 +141,6 @@ M.edit_with_instructions = function(output_lines, bufnr, selection, ...)
     visual_lines, start_row, start_col, end_row, end_col = unpack(selection)
   end
   local bedrock_params = Config.options.bedrock_edit_params
-  local use_functions_for_edits = Config.options.use_openai_functions_for_edits
   local settings_panel = Settings.get_settings_panel("edits", bedrock_params)
   local help_panel = Help.get_help_panel("edit") -- I like the highlighting for Lua.
   local open_extra_panels = {} -- tracks which extra panels are open

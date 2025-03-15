@@ -3,7 +3,7 @@ local Text = require("nui.text")
 local defaults = require("nui.utils").defaults
 local is_type = require("nui.utils").is_type
 local event = require("nui.utils.autocmd").event
-local Config = require("chatgpt.config")
+local Config = require("bedrock.config")
 
 -- exiting insert mode places cursor one character backward,
 -- so patch the cursor position to one character forward
@@ -118,7 +118,7 @@ function Input:mount()
 
   Input.super.mount(self)
 
-  vim.api.nvim_buf_set_option(0, "ft", "chatgpt-input")
+  vim.api.nvim_buf_set_option(0, "ft", "bedrock-input")
 
   if props.on_change then
     vim.api.nvim_buf_attach(self.bufnr, false, {

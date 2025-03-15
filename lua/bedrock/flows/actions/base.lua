@@ -1,12 +1,12 @@
-local classes = require("chatgpt.common.classes")
-local Signs = require("chatgpt.signs")
-local Spinner = require("chatgpt.spinner")
-local Utils = require("chatgpt.utils")
-local Config = require("chatgpt.config")
+local classes = require("bedrock.common.classes")
+local Signs = require("bedrock.signs")
+local Spinner = require("bedrock.spinner")
+local Utils = require("bedrock.utils")
+local Config = require("bedrock.config")
 
 local BaseAction = classes.class()
 
-local namespace_id = vim.api.nvim_create_namespace("ChatGPTNS")
+local namespace_id = vim.api.nvim_create_namespace("BedrockNS")
 
 local function get_selection_center(start_row, start_col, end_row, end_col)
   if start_row < end_row then
@@ -90,9 +90,9 @@ function BaseAction:render_spinner(state)
       start_row, start_col = get_selection_center(start_row, start_col, end_row, end_col)
       self.extmark_id = vim.api.nvim_buf_set_extmark(bufnr, namespace_id, start_row, 0, {
         virt_text = {
-          { Config.options.chat.border_left_sign, "ChatGPTTotalTokensBorder" },
-          { state .. " Processing, please wait ...", "ChatGPTTotalTokens" },
-          { Config.options.chat.border_right_sign, "ChatGPTTotalTokensBorder" },
+          { Config.options.chat.border_left_sign, "BedrockTotalTokensBorder" },
+          { state .. " Processing, please wait ...", "BedrockTotalTokens" },
+          { Config.options.chat.border_right_sign, "BedrockTotalTokensBorder" },
           { " ", "" },
         },
         virt_text_pos = "eol",

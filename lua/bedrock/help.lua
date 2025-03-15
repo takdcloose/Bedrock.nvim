@@ -4,7 +4,7 @@ M.vts = {}
 local NuiLine = require("nui.line")
 local NuiText = require("nui.text")
 local Popup = require("nui.popup")
-local Config = require("chatgpt.config")
+local Config = require("bedrock.config")
 
 M.get_help_panel = function(type)
   M.type = type

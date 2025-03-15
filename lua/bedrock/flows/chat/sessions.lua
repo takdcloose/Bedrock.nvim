@@ -2,12 +2,12 @@ local M = {}
 M.vts = {}
 
 local Popup = require("nui.popup")
-local Config = require("chatgpt.config")
-local Session = require("chatgpt.flows.chat.session")
-local Utils = require("chatgpt.utils")
-local InputWidget = require("chatgpt.common.input_widget")
+local Config = require("bedrock.config")
+local Session = require("bedrock.flows.chat.session")
+local Utils = require("bedrock.utils")
+local InputWidget = require("bedrock.common.input_widget")
 
-local namespace_id = vim.api.nvim_create_namespace("ChatGPTNS")
+local namespace_id = vim.api.nvim_create_namespace("BedrockNS")
 
 M.set_current_line = function()
   M.current_line, _ = unpack(vim.api.nvim_win_get_cursor(M.panel.winid))

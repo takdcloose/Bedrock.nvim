@@ -16,9 +16,8 @@ end
 local M = {}
 function M.defaults()
   local defaults = {
-    api_key_cmd = nil,
+    model_id = "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
     yank_register = "+",
-    extra_curl_params = nil,
     show_line_numbers = true,
     edit_with_instructions = {
       diff = false,
@@ -99,7 +98,7 @@ function M.defaults()
         highlight = "FloatBorder",
         style = "rounded",
         text = {
-          top = " ChatGPT ",
+          top = " Bedrock ",
         },
       },
       win_options = {
@@ -170,17 +169,18 @@ function M.defaults()
     },
     bedrock_params = {
       inferenceConfig = {
-        max_tokens = 300,
-        temperature = 0,
-      },
-    },
-    bedrock_edit_params = {
-      inferenceConfig = {
+        max_tokens = 4096,
         maxTokens = 1000,
         temperature = 0.5,
       },
     },
-    use_openai_functions_for_edits = false,
+    bedrock_edit_params = {
+      inferenceConfig = {
+        maxTokens = 4096,
+        temperature = 0.5,
+        topP = 0.9,
+      },
+    },
     ignore_default_actions_path = false,
     actions_paths = {},
     show_quickfixes_cmd = default_quickfix_cmd(),
@@ -199,7 +199,7 @@ end
 
 M.options = {}
 
-M.namespace_id = vim.api.nvim_create_namespace("ChatGPTNS")
+M.namespace_id = vim.api.nvim_create_namespace("BedrockNS")
 
 function M.setup(options)
   options = options or {}

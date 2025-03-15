@@ -1,9 +1,9 @@
 local M = {}
 
-local ChatAction = require("chatgpt.flows.actions.chat")
-local CompletionAction = require("chatgpt.flows.actions.completions")
-local EditAction = require("chatgpt.flows.actions.edits")
-local Config = require("chatgpt.config")
+local ChatAction = require("bedrock.flows.actions.chat")
+local CompletionAction = require("bedrock.flows.actions.completions")
+local EditAction = require("bedrock.flows.actions.edits")
+local Config = require("bedrock.config")
 
 local classes_by_type = {
   chat = ChatAction,

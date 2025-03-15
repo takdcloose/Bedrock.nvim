@@ -1,5 +1,5 @@
 local Popup = require("nui.popup")
-local Config = require("chatgpt.config")
+local Config = require("bedrock.config")
 
 local SystemWindow = Popup:extend("SystemWindow")
 

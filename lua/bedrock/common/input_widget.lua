@@ -1,5 +1,5 @@
 local Input = require("nui.input")
-local Config = require("chatgpt.config")
+local Config = require("bedrock.config")
 
 return function(name, on_submit)
   local input = Input({

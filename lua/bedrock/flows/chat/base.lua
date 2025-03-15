@@ -1,18 +1,18 @@
-local classes = require("chatgpt.common.classes")
+local classes = require("bedrock.common.classes")
 local Layout = require("nui.layout")
 local Popup = require("nui.popup")
 
-local ChatInput = require("chatgpt.input")
-local Api = require("chatgpt.api")
-local Config = require("chatgpt.config")
-local Settings = require("chatgpt.settings")
-local Help = require("chatgpt.help")
-local Sessions = require("chatgpt.flows.chat.sessions")
-local Utils = require("chatgpt.utils")
-local Signs = require("chatgpt.signs")
-local Spinner = require("chatgpt.spinner")
-local Session = require("chatgpt.flows.chat.session")
-local SystemWindow = require("chatgpt.flows.chat.system_window")
+local ChatInput = require("bedrock.input")
+local Api = require("bedrock.api")
+local Config = require("bedrock.config")
+local Settings = require("bedrock.settings")
+local Help = require("bedrock.help")
+local Sessions = require("bedrock.flows.chat.sessions")
+local Utils = require("bedrock.utils")
+local Signs = require("bedrock.signs")
+local Spinner = require("bedrock.spinner")
+local Session = require("bedrock.flows.chat.session")
+local SystemWindow = require("bedrock.flows.chat.system_window")
 
 QUESTION, ANSWER, SYSTEM = 1, 2, 3
 ROLE_ASSISTANT = "assistant"
@@ -25,7 +25,7 @@ function Chat:init()
   self.input_extmark_id = nil
 
   self.active_panel = nil
-  self.selected_message_nsid = vim.api.nvim_create_namespace("ChatGPTNSSM")
+  self.selected_message_nsid = vim.api.nvim_create_namespace("BedrockNSSM")
 
   -- quit indicator
   self.active = true
@@ -95,7 +95,7 @@ function Chat:welcome()
     local lines = Utils.split_string_by_line(Config.options.chat.welcome_message)
     self:set_lines(0, 0, false, lines)
     for line_num = 0, #lines do
-      self:add_highlight("ChatGPTWelcome", line_num, 0, -1)
+      self:add_highlight("BedrockWelcome", line_num, 0, -1)
     end
   end
   self:render_role()
@@ -108,12 +108,12 @@ function Chat:render_role()
 
   self.role_extmark_id = vim.api.nvim_buf_set_extmark(self.chat_input.bufnr, Config.namespace_id, 0, 0, {
     virt_text = {
-      { Config.options.chat.border_left_sign, "ChatGPTTotalTokensBorder" },
+      { Config.options.chat.border_left_sign, "BedrockTotalTokensBorder" },
       {
         string.upper(self.role),
-        "ChatGPTTotalTokens",
+        "BedrockTotalTokens",
       },
-      { Config.options.chat.border_right_sign, "ChatGPTTotalTokensBorder" },
+      { Config.options.chat.border_right_sign, "BedrockTotalTokensBorder" },
       { " " },
     },
     virt_text_pos = "right_align",
@@ -354,7 +354,7 @@ function Chat:show_message_selection()
   vim.api.nvim_buf_set_extmark(self.chat_window.bufnr, self.selected_message_nsid, msg.start_line, 0, {
     end_col = 0,
     end_row = msg.end_line + 1,
-    hl_group = "ChatGPTSelectedMessage",
+    hl_group = "BedrockSelectedMessage",
     hl_eol = true,
   })
   self:render_message_actions()
@@ -393,21 +393,21 @@ function Chat:render_message_actions()
       virt_text = {
         {
           " Delete (" .. Config.options.chat.keymaps.delete_message .. ") ",
-          "ChatGPTMessageAction",
+          "BedrockMessageAction",
         },
-        { " ", "ChatGPTSelectedMessage" },
+        { " ", "BedrockSelectedMessage" },
       },
       virt_text_pos = "right_align",
     })
 
     -- vim.api.nvim_buf_set_extmark(self.chat_window.bufnr, self.selected_message_nsid, msg.start_line, 0, {
     --   virt_text = {
-    --     { "  ", "ChatGPTSelectedMessage" },
+    --     { "  ", "BedrockSelectedMessage" },
     --     {
     --       " Edit (" .. Config.options.chat.keymaps.edit_message .. ") ",
-    --       "ChatGPTMessageAction",
+    --       "BedrockMessageAction",
     --     },
-    --     { " ", "ChatGPTSelectedMessage" },
+    --     { " ", "BedrockSelectedMessage" },
     --   },
     --   virt_text_pos = "right_align",
     -- })
@@ -459,14 +459,14 @@ function Chat:renderLastMessage()
 
   if msg.type == QUESTION then
     for index, _ in ipairs(lines) do
-      self:add_highlight("ChatGPTQuestion", msg.start_line + index - 1, 0, -1)
+      self:add_highlight("BedrockQuestion", msg.start_line + index - 1, 0, -1)
     end
 
     pcall(
       vim.fn.sign_place,
       0,
-      "chatgpt_ns",
-      "chatgpt_question_sign",
+      "bedrock_ns",
+      "bedrock_question_sign",
       self.chat_window.bufnr,
       { lnum = msg.start_line + 1 }
     )
@@ -476,12 +476,12 @@ function Chat:renderLastMessage()
       self.messages[self.selectedIndex].extmark_id =
         vim.api.nvim_buf_set_extmark(self.chat_window.bufnr, Config.namespace_id, msg.end_line + 1, 0, {
           virt_text = {
-            { Config.options.chat.border_left_sign, "ChatGPTTotalTokensBorder" },
+            { Config.options.chat.border_left_sign, "BedrockTotalTokensBorder" },
             {
               "TOKENS: " .. msg.usage.total_tokens,
-              "ChatGPTTotalTokens",
+              "BedrockTotalTokens",
             },
-            { Config.options.chat.border_right_sign, "ChatGPTTotalTokensBorder" },
+            { Config.options.chat.border_right_sign, "BedrockTotalTokensBorder" },
             { " ", "" },
           },
           virt_text_pos = "right_align",
@@ -611,9 +611,9 @@ function Chat:display_input_suffix(suffix)
   if suffix then
     self.extmark_id = vim.api.nvim_buf_set_extmark(self.chat_input.bufnr, Config.namespace_id, 0, -1, {
       virt_text = {
-        { Config.options.chat.border_left_sign, "ChatGPTTotalTokensBorder" },
-        { "" .. suffix, "ChatGPTTotalTokens" },
-        { Config.options.chat.border_right_sign, "ChatGPTTotalTokensBorder" },
+        { Config.options.chat.border_left_sign, "BedrockTotalTokensBorder" },
+        { "" .. suffix, "BedrockTotalTokens" },
+        { Config.options.chat.border_right_sign, "BedrockTotalTokensBorder" },
         { " ", "" },
       },
       virt_text_pos = "right_align",

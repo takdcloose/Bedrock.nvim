@@ -1,8 +1,8 @@
-local classes = require("chatgpt.common.classes")
-local BaseAction = require("chatgpt.flows.actions.base")
-local Api = require("chatgpt.api")
-local Utils = require("chatgpt.utils")
-local Config = require("chatgpt.config")
+local classes = require("bedrock.common.classes")
+local BaseAction = require("bedrock.flows.actions.base")
+local Api = require("bedrock.api")
+local Utils = require("bedrock.utils")
+local Config = require("bedrock.config")
 
 -- curl code to insert code between prompt and suffix
 -- curl https://api.openai.com/v1/completions \

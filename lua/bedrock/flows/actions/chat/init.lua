@@ -14,12 +14,12 @@
 --       }
 --     }
 --   }
-local classes = require("chatgpt.common.classes")
-local BaseAction = require("chatgpt.flows.actions.base")
-local Api = require("chatgpt.api")
-local Utils = require("chatgpt.utils")
-local Config = require("chatgpt.config")
-local Edits = require("chatgpt.code_edits")
+local classes = require("bedrock.common.classes")
+local BaseAction = require("bedrock.flows.actions.base")
+local Api = require("bedrock.api")
+local Utils = require("bedrock.utils")
+local Config = require("bedrock.config")
+local Edits = require("bedrock.code_edits")
 
 local ChatAction = classes.class(BaseAction)
 
@@ -95,7 +95,7 @@ function ChatAction:on_result(answer, usage)
     local _, start_row, start_col, end_row, end_col = self:get_visual_selection()
 
     if self.strategy == STRATEGY_DISPLAY then
-      local PreviewWindow = require("chatgpt.common.preview_window")
+      local PreviewWindow = require("bedrock.common.preview_window")
       -- compute size
       -- the width is calculated based on the maximum number of lines and the height is calculated based on the width
       local cur_win = vim.api.nvim_get_current_win()

@@ -1,24 +1,24 @@
 vim.api.nvim_create_user_command("ChatGPT", function()
-  require("chatgpt").openChat()
+  require("bedrock").openChat()
 end, {})
 
 vim.api.nvim_create_user_command("ChatGPTActAs", function()
-  require("chatgpt").selectAwesomePrompt()
+  require("bedrock").selectAwesomePrompt()
 end, {})
 
 vim.api.nvim_create_user_command("ChatGPTEditWithInstructions", function()
-  require("chatgpt").edit_with_instructions()
+  require("bedrock").edit_with_instructions()
 end, {
   range = true,
 })
 
 vim.api.nvim_create_user_command("ChatGPTRun", function(opts)
-  require("chatgpt").run_action(opts)
+  require("bedrock").run_action(opts)
 end, {
   nargs = "*",
   range = true,
   complete = function()
-    local ActionFlow = require("chatgpt.flows.actions")
+    local ActionFlow = require("bedrock.flows.actions")
     local action_definitions = ActionFlow.read_actions()
 
     local actions = {}

@@ -1,4 +1,4 @@
-local classes = require("chatgpt.common.classes")
+local classes = require("bedrock.common.classes")
 local Path = require("plenary.path")
 local scan = require("plenary.scandir")
 
@@ -132,7 +132,7 @@ end
 --
 
 function Session.get_dir()
-  local dir = Path:new(vim.fn.stdpath("state")):joinpath("chatgpt")
+  local dir = Path:new(vim.fn.stdpath("state")):joinpath("bedrock")
   if not dir:exists() then
     dir:mkdir()
   end
