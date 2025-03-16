@@ -4,6 +4,8 @@ local scan = require("plenary.scandir")
 
 local Session = classes.class()
 
+local debug = require("debug")
+
 local function get_current_date()
   return os.date("%Y-%m-%d_%H:%M:%S")
 end
@@ -71,6 +73,7 @@ function Session:add_item(item)
   -- tmp hack for system message
   if item.type == 3 then
     local found = false
+
     for index, msg in ipairs(self.conversation) do
       if msg.type == item.type then
         self.conversation[index].text = item.text

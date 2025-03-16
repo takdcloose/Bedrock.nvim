@@ -1,18 +1,18 @@
-vim.api.nvim_create_user_command("ChatGPT", function()
+vim.api.nvim_create_user_command("Bedrock", function()
   require("bedrock").openChat()
 end, {})
 
-vim.api.nvim_create_user_command("ChatGPTActAs", function()
+vim.api.nvim_create_user_command("BedrockActAs", function()
   require("bedrock").selectAwesomePrompt()
 end, {})
 
-vim.api.nvim_create_user_command("ChatGPTEditWithInstructions", function()
+vim.api.nvim_create_user_command("BedrockEditWithInstructions", function()
   require("bedrock").edit_with_instructions()
 end, {
   range = true,
 })
 
-vim.api.nvim_create_user_command("ChatGPTRun", function(opts)
+vim.api.nvim_create_user_command("BedrockRun", function(opts)
   require("bedrock").run_action(opts)
 end, {
   nargs = "*",

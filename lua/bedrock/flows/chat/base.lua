@@ -14,6 +14,8 @@ local Spinner = require("bedrock.spinner")
 local Session = require("bedrock.flows.chat.session")
 local SystemWindow = require("bedrock.flows.chat.system_window")
 
+local debug = require("debug")
+
 QUESTION, ANSWER, SYSTEM = 1, 2, 3
 ROLE_ASSISTANT = "assistant"
 ROLE_SYSTEM = "system"
@@ -77,6 +79,7 @@ function Chat:welcome()
     for idx, item in ipairs(self.session.conversation) do
       if item.type == SYSTEM then
         system_message_absent = false
+        local current_function_info = debug.getinfo(2)
         self:set_system_message(item.text, true)
       else
         self:_add(item.type, item.text, item.usage, idx)
@@ -513,25 +516,16 @@ function Chat:toString()
   return str
 end
 
-local function createContent(line)
-  local extensions = { "%.jpeg", "%.jpg", "%.png", "%.gif", "%.bmp", "%.tif", "%.tiff", "%.webp" }
-  for _, ext in ipairs(extensions) do
-    if string.find(line:lower(), ext .. "$") then
-      return { type = "image_url", image_url = line }
-    end
+function Chat:getSystem()
+  local system = {}
+  if self.system_message ~= nil then
+    table.insert(system, { text = self.system_message })
   end
-  return { type = "text", text = line }
+  return system
 end
 
 function Chat:toMessages()
   local messages = {}
-  --[[
-  if self.system_message ~= nil then
-    print("system")
-    print(self.system_message)
-    table.insert(messages, { role = "system", content = self.system_message })
-  end
-]]
   for _, msg in pairs(self.messages) do
     local role = "user"
     if msg.type == 1 then
@@ -754,10 +748,6 @@ end
 
 function Chat:open()
   local displayed_params = Utils.table_shallow_copy(self.params)
-  -- if the param is decided by a function and not constant, write <dynamic> for now
-  -- TODO: if the current model should be displayed, the settings_panel would
-  -- have to be constantly modified or rewritten to be able to manage a function
-  -- returning the model as well
   for key, value in pairs(self.params) do
     if type(value) == "function" then
       displayed_params[key] = "<dynamic>"
@@ -809,7 +799,12 @@ function Chat:open()
       self:addQuestion(value)
       if self.role == ROLE_USER then
         self:showProgess()
-        local params = vim.tbl_extend("keep", { stream = true, messages = self:toMessages() }, Settings.params)
+        local params = vim.tbl_extend(
+          "keep",
+          { messages = self:toMessages() },
+          { system = self:getSystem() },
+          Settings.params
+        )
         Api.chat_completions(params, function(answer, state)
           self:addAnswerPartial(answer, state)
         end, self.should_stop)

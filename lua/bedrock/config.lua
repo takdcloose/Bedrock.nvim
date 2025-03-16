@@ -169,8 +169,7 @@ function M.defaults()
     },
     bedrock_params = {
       inferenceConfig = {
-        max_tokens = 4096,
-        maxTokens = 1000,
+        maxTokens = 4096,
         temperature = 0.5,
       },
     },

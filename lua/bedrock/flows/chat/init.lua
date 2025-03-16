@@ -55,7 +55,6 @@ M.open_with = function(opts)
       M.chat:new_session()
     end
 
-    -- 仅在new_session时才支持prompt设置
     if new_session or opts.new_session then
       if opts.messages then
         for _, item in pairs(opts.messages) do
