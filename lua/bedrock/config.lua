@@ -17,6 +17,7 @@ local M = {}
 function M.defaults()
   local defaults = {
     model_id = "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+    region = "us-west-2",
     yank_register = "+",
     show_line_numbers = true,
     edit_with_instructions = {
@@ -171,6 +172,7 @@ function M.defaults()
       inferenceConfig = {
         maxTokens = 4096,
         temperature = 0.5,
+        topP = 0.9,
       },
     },
     bedrock_edit_params = {

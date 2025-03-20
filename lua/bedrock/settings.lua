@@ -22,7 +22,7 @@ local model_validator = function(value)
   return value
 end
 
-local params_order = { "model", "frequency_penalty", "presence_penalty", "max_tokens", "temperature", "top_p" }
+local params_order = { "maxTokens", "temperature", "topP", "region", "model_id" }
 local params_validators = {
   model = model_validator,
   frequency_penalty = float_validator(-2, 2),
@@ -76,13 +76,25 @@ M.get_settings_panel = function(type, default_params)
   -- write details as virtual text
   local details = {}
   for _, key in pairs(params_order) do
-    if M.params[key] ~= nil then
+    if M.params["inferenceConfig"][key] ~= nil then
       local vt = {
         { Config.options.settings_window.setting_sign .. key .. ": ", "ErrorMsg" },
-        { M.params[key] .. "", Config.options.highlights.params_value },
+        { M.params["inferenceConfig"][key] .. "", Config.options.highlights.params_value },
       }
       table.insert(details, vt)
     end
+  end
+  if Config.options.model_id ~= nil and Config.options.region then
+    local vt = {
+      { Config.options.settings_window.setting_sign .. "model id: ", "ErrorMsg" },
+      { Config.options.model_id .. "", Config.options.highlights.params_value },
+    }
+    table.insert(details, vt)
+    local vt = {
+      { Config.options.settings_window.setting_sign .. "region: ", "ErrorMsg" },
+      { Config.options.region .. "", Config.options.highlights.params_value },
+    }
+    table.insert(details, vt)
   end
 
   local line = 1
