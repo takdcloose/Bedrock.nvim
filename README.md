@@ -99,7 +99,7 @@ By default, it uses the us-west-2 region. This can also be changed in the config
 }
 ```
 
-Off course, you need to grant access to the model you will use in advance. [doc](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html)
+Off course, you need to grant access to the model you will use in advance. [doc](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html) (**By default, it uses Claude 3.7 Sonnet in us-west-2 region**)
 
 ## Future work
 
