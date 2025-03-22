@@ -1,6 +1,6 @@
 # Bedrock.nvim
 
-![Image](https://github.com/user-attachments/assets/8d01faea-9dc2-4abf-8881-0d80ff14ae55)
+![Image](https://github.com/user-attachments/assets/dd92ee89-05f1-4aae-97dc-3ecae2d79d73)
 
 This is a fork of ChatGPT.nvim, a plugin that has been enhanced to use Amazon Bedrock.
 Most of the code uses the same as ChatGPT.nvim, with some code modified to use Amazon Bedrock.
