@@ -192,9 +192,11 @@ end
 
 local function loadRequiredConfig(envName, configName, callback)
   loadConfigFromEnv(envName, configName, callback)
+  --[[
   if not Api[configName] then
     logger.warn(configName .. " variable not set")
   end
+    ]]
 end
 
 function Api.setup()
